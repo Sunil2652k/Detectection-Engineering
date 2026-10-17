@@ -1,0 +1,61 @@
+title: Suspicious Node Package Lifecycle Abuse
+id: e8265d58-bda8-4d1d-9b49-6cf6ec5bbf1e
+status: experimental
+description: Detects suspicious use of Node.js package managers running malicious lifecycle hooks, installing rogue dependencies, or invoking script execution during package installation.
+author: Copilot
+date: 2026-10-17
+references:
+  - https://unit42.paloaltonetworks.com/chaindrop-npm-worm-analysis/
+logsource:
+  category: process_creation
+  product: windows
+definition:
+  selection_npm:
+    Image|endswith:
+      - '\node.exe'
+      - '\npm.cmd'
+      - '\npm.exe'
+      - '\pnpm.cmd'
+      - '\yarn.cmd'
+  selection_suspicious:
+    CommandLine|contains:
+      - 'npm install'
+      - 'npm i '
+      - 'npm ci'
+      - 'pnpm install'
+      - 'yarn install'
+      - 'postinstall'
+      - 'preinstall'
+      - 'install.js'
+      - 'powershell'
+      - 'cmd.exe'
+      - 'curl '
+      - 'wget '
+      - 'base64'
+      - 'eval('
+      - 'child_process'
+      - 'execSync'
+      - 'spawn('
+      - 'registry.npmjs.org'
+      - '.npmrc'
+      - 'package-lock.json'
+      - 'node_modules'
+      - 'npmrc'
+  condition: selection_npm and selection_suspicious
+falsepositives:
+  - Legitimate dependency installation in development environments
+  - Build pipelines that install project dependencies without malicious scripting
+level: high
+fields:
+  - Image
+  - CommandLine
+  - ParentImage
+  - User
+  - CurrentDirectory
+  - ProcessId
+tags:
+  - attack.execution
+  - attack.persistence
+  - attack.command_and_control
+  - attack.t1059
+  - attack.t1505
