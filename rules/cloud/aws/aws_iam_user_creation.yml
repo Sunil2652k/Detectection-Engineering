@@ -1,0 +1,20 @@
+title: AWS IAM User Creation
+id: d8b1b7ac-1a19-47b7-8679-1f5d5406de5e
+status: experimental
+description: Detects creation of new IAM users that may indicate unauthorized account setup.
+author: Copilot
+date: 2026-10-17
+logsource:
+  category: cloud
+  product: aws
+definition:
+  selection:
+    eventName: 'CreateUser'
+  condition: selection
+falsepositives:
+  - Authorized administrator user provisioning
+level: medium
+fields:
+  - userIdentity.arn
+  - eventName
+  - sourceIPAddress

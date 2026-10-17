@@ -1,0 +1,22 @@
+title: Suspicious HTTP Connection to Unknown Host
+id: f43cc9eb-a219-4040-a136-876d6a8fd2da
+status: experimental
+description: Detects outbound HTTP requests to unknown or recently observed domains for initial access or callback activity.
+author: Copilot
+date: 2026-10-17
+logsource:
+  category: network_connection
+  product: windows
+definition:
+  selection:
+    Initiated: true
+    DestinationPort: 80
+  condition: selection
+falsepositives:
+  - Normal browsing or software updates
+level: low
+fields:
+  - DestinationHostname
+  - DestinationIp
+  - SourceIp
+  - User

@@ -1,0 +1,22 @@
+title: Suspicious PowerShell Encoded Command
+id: 6b5f5a61-c3a6-4b5c-8cbf-c6d4b2f91b6d
+status: experimental
+description: Detects suspicious PowerShell execution using encoded commands or obfuscation patterns commonly used in malicious activity.
+author: Copilot
+date: 2026-10-17
+logsource:
+  category: process_creation
+  product: windows
+definition:
+  selection:
+    Image|endswith: '\\powershell.exe'
+    CommandLine|contains: '-enc'
+  condition: selection
+falsepositives:
+  - Legitimate administrative scripts using encoded PowerShell
+level: high
+fields:
+  - CommandLine
+  - ParentImage
+  - User
+  - Hostname

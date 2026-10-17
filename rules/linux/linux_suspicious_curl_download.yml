@@ -1,0 +1,22 @@
+title: Linux Suspicious Curl Download
+id: 1a0dbd66-bf15-4815-a678-34208f9d6db2
+status: experimental
+description: Detects a curl invocation that downloads a remote payload or script from an untrusted host.
+author: Copilot
+date: 2026-10-17
+logsource:
+  category: process_creation
+  product: linux
+definition:
+  selection:
+    Image|endswith: '/curl'
+    CommandLine|contains: 'curl'
+    CommandLine|contains: 'http'
+  condition: selection
+falsepositives:
+  - Patch downloads or legitimate system package retrievals
+level: medium
+fields:
+  - CommandLine
+  - User
+  - ParentImage
