@@ -1,0 +1,64 @@
+title: NetScaler ADC Exploit Attempt CVE-2026-88771
+id: 9d3adfa2-8b18-470f-93a7-3f94d7b2058b
+status: experimental
+description: Detects suspicious exploitation activity against NetScaler ADC/Gateway appliances, including requests to CGI, VPN, or authentication endpoints with command execution, webshell, or encoded payload behavior associated with CVE-2026-88771.
+author: Copilot
+date: 2026-10-17
+references:
+  - https://unit42.paloaltonetworks.com/netscaler-zero-days-exploited/
+  - https://nvd.nist.gov/vuln/detail/CVE-2026-88771
+logsource:
+  category: webserver
+  product: netscaler
+definition:
+  selection_path:
+    cs-uri-stem|contains:
+      - '/cgi-bin/'
+      - '/vpn/'
+      - '/vpns/'
+      - '/oauth/'
+      - '/saml/'
+  selection_payload:
+    cs-uri-query|contains:
+      - 'cmd='
+      - 'exec='
+      - 'shell='
+      - 'wget'
+      - 'curl'
+      - 'powershell'
+      - 'base64'
+      - 'http://'
+      - 'https://'
+      - 'nc.exe'
+      - 'ncat'
+      - 'bash -c'
+      - 'cmd.exe'
+  selection_webshell:
+    cs-uri-stem|contains: '/cgi-bin/'
+    cs-uri-query|contains:
+      - 'upload'
+      - 'writefile'
+      - 'createfile'
+      - 'outfile'
+      - 'cmd'
+  condition: (selection_path and selection_payload) or selection_webshell
+falsepositives:
+  - Legitimate administrative access or maintenance on a NetScaler appliance
+  - Standard VPN or SSO health checks that do not contain command execution patterns
+level: high
+fields:
+  - src_ip
+  - cs-uri-stem
+  - cs-uri-query
+  - cs-user-agent
+  - sc-status
+  - cs-host
+  - x-forwarded-for
+tags:
+  - attack.initial_access
+  - attack.execution
+  - attack.persistence
+  - attack.t1190
+  - attack.t1059
+  - attack.t1505
+  - cve.2026-88771
